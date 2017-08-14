@@ -83,12 +83,16 @@ void findX2() {
         x1 = -b / (2 * (double)a);
         printf("X1 = X2 = %f\n", x1);
     }
-    else
+    else if (a != 0)
     {
-        x1 = (-b + sqrt(d)) / (2 * a);
+		x1 = (-b + sqrt(d)) / (2 * a);
         x2 = (-b - sqrt(d)) / (2 * a);
         printf("X1 = %f, X2 = %f\n", x1, x2);
-    }
+    } else {
+        x1 = -c / (double)b;
+        printf("X = %f\n", x1);
+
+	}
 }
 
 /*
