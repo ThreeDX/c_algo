@@ -17,9 +17,9 @@ char*  decToBin(int num, char* bin) {
     char str[2];
 
     if (num >= 2)
-        decToBin(num>>1, bin);
+        decToBin(num >> 1, bin);
 
-    return strcat(bin, itoa((num%2), str, 10));
+    return strcat(bin, itoa((num % 2), str, 10));
 }
 
 /*
@@ -52,10 +52,10 @@ long powerRCFast(int a, unsigned int b) {
     if (b == 0)
         return 1;
 
-    if (b % 2 == 0) {
-        return powerRCFast(a*a, b>>1);
-    }
-    return a * powerRCFast(a, --b);
+    if (b % 2 == 0)
+        return powerRCFast(a * a, b >> 1);
+    else
+		return a * powerRCFast(a, --b);
 }
 
 /*
@@ -72,7 +72,7 @@ int move(int from, int to) {
     }
     if (from < to) {
         mc += move(from + 1, to);
-        mc += move(from<<1, to);
+        mc += move(from << 1, to);
     }
     return mc;
 }
