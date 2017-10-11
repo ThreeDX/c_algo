@@ -77,6 +77,21 @@ int move(int from, int to) {
     return mc;
 }
 
+int moveArray(int from, int to) {
+    int mc = 1, i = 0;
+    int *arr = (int*) malloc(sizeof(int) * (to-from+1)); 
+    *arr = 1;
+    for (i = from + 1; i<= to; i++) {
+        if (i%2 == 0 && i/2 >= from)
+            *(arr + i - from) = *(arr + i - from - 1) + *(arr + i / 2 - from);
+        else 
+            *(arr + i - from) = *(arr + i - from - 1);
+    }
+    mc = *(arr + to - from);
+    free(arr);
+    return mc;
+}
+
 /*
 * Main function
 */
@@ -99,6 +114,7 @@ int main(int argc, char* argv[]) {
 
     printf("\nЗадание №3: Число путей от 3 до 20.\n");
     printf("Число путей от 3 до 20 = %d\n", move(3, 20));
+    printf("Число путей от 3 до 20 = %d\n", moveArray(3, 20));
 
     getch();
     return 0;
