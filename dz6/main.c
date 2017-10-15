@@ -237,6 +237,7 @@ TreeNode* getSearchTree(NodeStudent* head, int type) {
 void writeDB() {
     int i = 0;
     Student student[10];
+    FILE * file;
     strcpy(student[0].name, "Иван Петров");
     student[0].id = 6;
     student[0].age = 18;
@@ -268,7 +269,7 @@ void writeDB() {
     student[9].id = 10;
     student[9].age = 22;
 
-    FILE * file = fopen("students.db", "wb");
+    file = fopen("students.db", "wb");
     if (file != NULL) {
         for(i=0; i< 10; i++)
             fwrite(&student[i], sizeof(Student), 1, file);
