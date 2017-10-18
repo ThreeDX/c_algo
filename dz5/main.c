@@ -68,86 +68,155 @@ void print(Node *n) {
 }
 
 /////////////////////////////////////
-// 4. реализовать очередь.
+// 5. реализовать очередь. (на Массиве)
+///////////// Queue /////////////////
+
+// Максимальное число элементов в очереди
+#define MAX_QA 100
+
+typedef struct {
+	T data[MAX_QA];
+	int head;
+	int tail;
+} AQueue;
+
+void pushQA(AQueue* q, T val) {
+	// Хвост уперся в границу массива
+	if (q->tail == MAX_QA)
+	{
+		if (q->head != 0) // Еще есть место, сдвинем элементы в начало
+		{
+			int count = q->tail - q->head; // Определяем число элементов
+			memmove(q->data, q->data + count, count * sizeof(T)); // Сдвигаем элементы в начало массива
+		}
+		else
+		{
+			printf("Queue is full");
+			return;
+		}
+	}
+
+	q->data[q->tail] = val;
+	q->tail++;
+}
+
+T popQA(AQueue* q) {
+	if (q->head == q->tail) {
+		printf("Queue is empty");
+		return -1;
+	}
+	q->head++;
+
+	return q->data[q->head - 1];
+}
+
+int lengthQA(AQueue *q) {
+	return q->tail - q->head;
+}
+
+void clearQA(AQueue *q) {
+	q->head = 0;
+	q->tail = 0;
+}
+
+void printQA(AQueue *q) {
+	for (int i = q->head; i < q->tail; i++)
+		printf("%d", q->data[i]);
+}
+
+void fillQueueA(AQueue* q, int size) {
+	int i = 0;
+	while (i < size) {
+		pushQA(q, i);
+		i++;
+	}
+}
+////////////////////////////
+
+/////////////////////////////////////
+// 5. реализовать очередь. (на списке)
 ///////////// Queue /////////////////
 
 struct QNode {
-    T data;
-    struct QNode* next;
-    struct QNode* prev;
+	T data;
+	struct QNode* next;
+	struct QNode* prev;
 };
 typedef struct QNode QNode;
 
 typedef struct {
-    QNode* head;
-    QNode* tail;
-    int size;
+	QNode* head;
+	QNode* tail;
+	int size;
 } Queue;
 
 void pushQ(Queue* q, T val) {
-    QNode* tmp = (QNode*) malloc(sizeof(QNode));
-    if (tmp == NULL) {
-        printf("Stack Overflow");
-        return;
-    }
-    tmp->data = val;
-    tmp->prev = NULL;
-    
-    if (q->head)
-        q->head->prev = tmp;
-    else
-        q->tail = tmp;
-    tmp->next = q->head;
-    q->head = tmp;
-    q->size++;
+	QNode* tmp = (QNode*)malloc(sizeof(QNode));
+	if (tmp == NULL) {
+		printf("Stack Overflow");
+		return;
+	}
+	tmp->data = val;
+	tmp->prev = q->tail;
+	tmp->next = NULL;
+
+	if (q->tail)
+		q->tail->next = tmp;
+	q->tail = tmp;
+
+	if (!q->head)
+		q->head = tmp;
+	q->size++;
 }
 
 T popQ(Queue* q) {
-    QNode* tmp;
-    T value;
-    
-    if (q->size == 0) {
-        printf("Queue is empty");
-        return -1;
-    }
-    
-    tmp = q->tail;
-    value = tmp->data;
-    q->tail = tmp->prev;
-    
-    if (q->head == tmp)
-        q->head = q->tail;
-    else
-        q->tail->next = NULL;
-    
-    free(tmp);
-    q->size--;
-    return value;
+	QNode* tmp;
+	T value;
+
+	if (q->size == 0) {
+		printf("Queue is empty");
+		return -1;
+	}
+
+	tmp = q->head;
+	value = tmp->data;
+	q->head = tmp->next;
+
+	if (q->tail == tmp)
+		q->tail = NULL;
+
+	if (q->head)
+		q->head->prev = NULL;
+
+	free(tmp);
+	q->size--;
+	return value;
 }
 
 int lengthQ(Queue *q) {
-    return q->size;
+	return q->size;
 }
 
 void clearQ(Queue *q) {
-    while(lengthQ(q))
-        popQ(q);
+	while (lengthQ(q))
+		popQ(q);
 }
 
 void printQ(QNode *n) {
-    if (n) {
-        printf("%d", n->data);
-        printQ(n->next);
-    } else
-        return;
+	if (n) {
+		printf("%d", n->data);
+		printQ(n->next);
+	}
+	else
+		return;
 }
 
 void fillQueue(Queue* q, int size) {
-    int i = 0;
-    while (i < size) {
-        pushQ(q, i);
-        i++;
-    }
+	int i = 0;
+	while (i < size) {
+		pushQ(q, i);
+		i++;
+	}
 }
 ////////////////////////////
 
@@ -167,28 +236,35 @@ void decToBin(int num, Stack* stack) {
  * 2. Написать программу, которая определяет, является ли введенная скобочная последовательность правильной.
  */
 int checkString(char* str) {
+	const int TYPES = 3;
+	char braces[][2] = { { '(',')' }, { '[',']' }, { '{','}' } };
     Stack s;
     T tmp;
     s.head = NULL;
     s.size = 0;
 
     while (*str != '\0') {
-        if (*str == '{' || *str == '(' || *str == '[')
-            push(&s, *str);
-        else if (*str == '}' || *str == ')' || *str == ']') {
-            if (!length(&s))
-                return 0;
-            
-            tmp = pop(&s);
-            
-            if (tmp == '{' && *str != '}')
-                return 0;
-            else if (tmp == '[' && *str != ']')
-                return 0;
-            else if (tmp == '(' && *str != ')')
-                return 0;
-        }
-        str++;
+		int i;
+		for (i = 0; i < TYPES; i++)
+			if (*str == braces[i][0])
+			{
+				push(&s, i);
+				str++;
+				continue; // Очень не хотелось лишний раз гонять цикл ниже
+			}
+
+		for (i = 0; i < TYPES; i++)
+			if (*str == braces[i][1])
+			{
+				if (!length(&s)) // Стек пустой
+					return 0;
+
+				tmp = pop(&s);
+
+				if (i != tmp) // Скобка не соответствует закрывающей
+					return 0;
+			}
+		str++;
     }
 
     return (s.size == 0);
@@ -218,11 +294,14 @@ Node* copy(Node* from) {
 int main(int argc, char* argv[]) {
     Stack stack;
     Queue queue;
+	AQueue aqueue;
     stack.head = NULL;
     stack.size = 0;
     queue.head = NULL;
     queue.tail = NULL;
     queue.size = 0;
+	aqueue.head = 0;
+	aqueue.tail = 0;
 
     setlocale(LC_ALL, "Russian");
     printf("Dmitry Panfilov Домашняя работа №5\n");
@@ -244,12 +323,18 @@ int main(int argc, char* argv[]) {
     printf("\nSecond = ");
     print(copy(stack.head));
 
-    printf("\n\nЗадание №4: Реализовать очередь.\n");
+    printf("\n\nЗадание №5: Реализовать очередь.\n");
     fillQueue(&queue, 8);
-    printf("Queue = ");
+    printf("QueueList = ");
     printQ(queue.head);
     printf("\nPopQ = %d, queue = ", popQ(&queue));
     printQ(queue.head);
+	puts("");
+	fillQueueA(&aqueue, 8);
+	printf("QueueArray = ");
+	printQA(&aqueue);
+	printf("\nPopQ = %d, queue = ", popQA(&aqueue));
+	printQA(&aqueue);
 
     getch();
     return 0;
