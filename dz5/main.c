@@ -87,7 +87,9 @@ void pushQA(AQueue* q, T val) {
 		if (q->head != 0) // Еще есть место, сдвинем элементы в начало
 		{
 			int count = q->tail - q->head; // Определяем число элементов
-			memmove(q->data, q->data + count, count * sizeof(T)); // Сдвигаем элементы в начало массива
+			memmove(q->data, q->data + q->head, count * sizeof(T)); // Сдвигаем элементы в начало массива
+			q->tail -= q->head;
+			q->head = 0;
 		}
 		else
 		{
@@ -334,6 +336,7 @@ int main(int argc, char* argv[]) {
 	printf("QueueArray = ");
 	printQA(&aqueue);
 	printf("\nPopQ = %d, queue = ", popQA(&aqueue));
+	//pushQA(&aqueue, 1); // Для проверки сдвига массива, MAX_QA должен быть 8
 	printQA(&aqueue);
 
     getch();
