@@ -50,6 +50,16 @@ T pop(Stack* s) {
     return value;
 }
 
+// Показывает последний элемент в стеке
+T back(Stack *s)
+{
+	if (s->size == 0) {
+		printf("Stack is empty");
+		return -1;
+	}
+	return s->head->data;
+}
+
 int length(Stack *s) {
     return s->size;
 }
@@ -124,6 +134,11 @@ void clearQA(AQueue *q) {
 void printQA(AQueue *q) {
 	for (int i = q->head; i < q->tail; i++)
 		printf("%d", q->data[i]);
+}
+
+void printQAC(AQueue *q) {
+	for (int i = q->head; i < q->tail; i++)
+		printf("%c", q->data[i]);
 }
 
 void fillQueueA(AQueue* q, int size) {
@@ -289,6 +304,80 @@ Node* copy(Node* from) {
     } else
         return NULL;
 }
+/*
+ * 4. *Реализовать алгоритм перевода из инфиксной записи арифметического выражения в постфиксную.
+*/
+void convert(char *str)
+{
+	Stack temp;
+	AQueue result;
+	temp.head = NULL;
+	temp.size = 0;
+	push(&temp, '\0');
+	result.head = 0;
+	result.tail = 0;
+
+	while (*str != '\0')
+	{
+		switch (*str) {
+		case '+':
+		case '-':
+			if (back(&temp) == '\0' || back(&temp) == '(') {
+				push(&temp, *str);
+				break;
+			}
+			else {
+				pushQA(&result, pop(&temp));
+				continue;
+			}
+		case '*':
+		case '/':
+			if (back(&temp) == '*' || back(&temp) == '/') {
+				pushQA(&result, pop(&temp));
+				continue;
+			}
+			else {
+				push(&temp, *str);
+				break;
+			}
+		case '(':
+			push(&temp, *str);
+			break;
+		case ')':
+			if (back(&temp) == '\0')
+				goto error;
+			if (back(&temp) == '(') {
+				pop(&temp);
+				break;
+			}
+			else {
+				pushQA(&result, pop(&temp));
+				continue;
+			}
+		default:
+			pushQA(&result, *str);
+		}
+		str++;
+	}
+	// Достигли конца строки, подчишаем стек
+	while (back(&temp) != '\0')
+		if (back(&temp) == '(')
+			goto error;
+		else
+			pushQA(&result, pop(&temp));
+
+	// Сконвертировались успешно
+	printQAC(&result);
+	clear(&temp);
+	clearQA(&result);
+	return;
+
+error:
+	puts("convert error!");
+	clear(&temp);
+	clearQA(&result);
+	return;
+}
 
 /*
 * Main function
@@ -325,7 +414,16 @@ int main(int argc, char* argv[]) {
     printf("\nSecond = ");
     print(copy(stack.head));
 
-    printf("\n\nЗадание №5: Реализовать очередь.\n");
+	printf("\n\nЗадание №4: Преобразовать последовательность.\n");
+	printf("2+2*2 = ");
+	convert("2+2*2");
+	printf("\n4-2*(7+8/2) = ");
+	convert("4-2*(7+8/2)");
+	printf("\n(8+2*5)/(1+3*2-4) = ");
+	convert("(8+2*5)/(1+3*2-4)");
+	
+	
+	printf("\n\nЗадание №5: Реализовать очередь.\n");
     fillQueue(&queue, 8);
     printf("QueueList = ");
     printQ(queue.head);
