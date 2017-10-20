@@ -14,10 +14,8 @@
  */
 unsigned int crc(char* str) {
     unsigned int c = 0;
-    while (*str != '\0') {
-        c += *str;
-        str++;
-    }
+    while (*str != '\0')
+        c += *str++;
     return c;
 }
 
