@@ -21,6 +21,13 @@ typedef struct GraphNode {
 	struct GraphNode* qprev;
 } GraphNode;
 
+typedef struct MatrixNode {
+	char from;
+	char to;
+	int len;
+	struct MatrixNode* next;
+} MatrixhNode;
+
 // Считывает размер матрицы (определяет посодержимому)
 void readMatrixSize(FILE* f, int* width, int* height) {
 	int lines = 0;
@@ -60,9 +67,10 @@ void readMatrix(FILE* f, int size) {
 // Выводит матрицу на экран
 void printMatrix(int size) {
 	int i, j;
-	for (i = 0; i < size; i++) {
-		for (j = 0; j < size; j++)
-			printf("%d ", matrix[i][j]);
+	for (i = -1; i < size; i++) {
+		for (j = -1; j < size; j++)
+			(j < 0) ? printf("%c ", (i < 0) ? ' ' : 65 + i)
+			: (i < 0) ? printf("%c ", 65 + j) : printf("%d ", matrix[i][j]);
 		printf("\n");
 	}
 }
@@ -120,7 +128,7 @@ int qPop(Queue* q) {
 int isChecked[maxWidth] = { 0 }; // Массив для отметки посещенных узлов
 
 int depthTravers(int start, int goal, int size) {
-	int result = 0;
+	printf("%c", 65 + start);
 	if (start == goal || isChecked[start]) {
 		return 1;
 	}
@@ -129,9 +137,9 @@ int depthTravers(int start, int goal, int size) {
 		int j;
 		for (j = 0; j < size; j++)
 			if (matrix[start][j] == 1 && isChecked[j] == 0)
-				return depthTravers(j, goal, size);
+				return 1 + depthTravers(j, goal, size);
 	}
-	return result;
+	return 0;
 }
 
 // Обход в ширину
@@ -144,9 +152,12 @@ int widthTravers(int start, int goal, int size) {
 		int value = qPop(&q);
 		if (used[value] == 1) continue;
 		used[value] = 1;
+
+		printf("%c", 65 + value);
 		steps++;
-		if (value == goal)
+		if (value == goal) {
 			return steps;
+		}
 
 		int i;
 		for (i = 0; i < size; i++) {
@@ -157,6 +168,38 @@ int widthTravers(int start, int goal, int size) {
 	return -1;
 }
 
+// преобразование в структуру
+MatrixhNode* transformMatrix(int size) {
+	MatrixhNode* m = NULL;
+	MatrixhNode* p = NULL;
+	int i, j;
+	for (i = 0; i < size; i++) {
+		for (j = 0; j < size; j++) {
+			if (matrix[i][j]) {
+				p = (MatrixhNode*)malloc(sizeof(MatrixhNode));
+				if (!p) {
+					puts("Memory fail");
+					exit(1);
+				}
+				p->next = m;
+				p->from = 65 + i;
+				p->to = 65 + j;
+				p->len = matrix[i][j];
+				m = p;
+			}
+		}
+	}
+	return p;
+}
+
+// Печатет новую структуру
+void printTransform(MatrixhNode* p) {
+	MatrixhNode* m = p;
+	while (m) {
+		printf("%c->%c: %d\n", m->from, m->to, m->len);
+		m = m->next;
+	}
+}
 
 /*
 * Main function
@@ -178,15 +221,18 @@ int main(int argc, char* argv[]) {
 		printf("Матрица должна быть квадратной.");
 		return 1;
 	}
-	printf("h=%d, w=%d\n", h, w);
+	printf("h=%d, w=%d\n\n", h, w);
 	rewind(file);
 	readMatrix(file, w);
 	fclose(file);
 
 	printMatrix(w);
+	puts("");
 
-	printf("\nВглубину шагов: %d\n", depthTravers(1, 4, 6));
-	printf("Вширину шагов: %d\n", widthTravers(1, 4, 6));
+	printf(": В глубину (B->E): %d\n", depthTravers(1, 4, 6));
+	printf(": В ширину (B->E): %d\n\n", widthTravers(1, 4, 6));
+
+	printTransform(transformMatrix(w));
 
     getch();
     return 0;
