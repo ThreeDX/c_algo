@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <conio.h>
+
+#define M 4
+#define N 3
+
+void PrintMatrix(int** arr, int n, int m)
+{
+    int i, j;
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0; j < m; j++)
+            printf("%d ", arr[i][j]);
+        printf("\n");
+    }
+}
+
+int main()
+{
+    int ** Matrix;
+    int i, j;
+    Matrix = (int**)malloc(N * sizeof(int*));
+    for (i = 0; i < N; i++)
+        Matrix[i] = (int*)malloc(M * sizeof(int));
+    for (i = 0; i < N; i++)
+        for (j = 0; j < M; j++)
+            Matrix[i][j] = i + j;
+    PrintMatrix(Matrix, N, M);
+    getch();
+}
